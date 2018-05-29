@@ -118,8 +118,7 @@ public class QuoteView extends LinearLayout implements RecipientModifiedListener
 
     dismissView.setOnClickListener(view -> setVisibility(GONE));
 
-    setWillNotDraw(false);
-    if (Build.VERSION.SDK_INT < 18) {
+    setWillNotDraw(false); if (Build.VERSION.SDK_INT < 18) {
       setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
   }

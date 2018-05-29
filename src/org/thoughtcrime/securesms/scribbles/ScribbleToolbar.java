@@ -34,6 +34,7 @@ import android.widget.LinearLayout;
 
 import org.thoughtcrime.securesms.R;
 
+// TODO: Delete this
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class ScribbleToolbar extends Toolbar implements View.OnClickListener {
 

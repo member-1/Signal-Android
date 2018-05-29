@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -32,7 +33,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 
 import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.mms.DecryptableStreamUriLoader.DecryptableUri;
@@ -77,7 +80,7 @@ public class ScribbleView extends FrameLayout {
   }
 
   public void setImage(@NonNull GlideRequests glideRequests, @NonNull Uri uri) {
-    this.imageUri     = uri;
+    this.imageUri = uri;
 
     glideRequests.load(new DecryptableUri(uri))
                  .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -85,7 +88,6 @@ public class ScribbleView extends FrameLayout {
                  .into(imageView);
   }
 
-  @SuppressLint("StaticFieldLeak")
   public @NonNull ListenableFuture<Bitmap> getRenderedImage(@NonNull GlideRequests glideRequests) {
     final SettableFuture<Bitmap> future      = new SettableFuture<>();
     final Context                context     = getContext();
@@ -96,43 +98,33 @@ public class ScribbleView extends FrameLayout {
       return future;
     }
 
-    new AsyncTask<Void, Void, Bitmap>() {
-      @Override
-      protected @Nullable Bitmap doInBackground(Void... params) {
-        try {
-          int width  = Target.SIZE_ORIGINAL;
-          int height = Target.SIZE_ORIGINAL;
+    int width  = Target.SIZE_ORIGINAL;
+    int height = Target.SIZE_ORIGINAL;
 
-          if (isLowMemory) {
-            width  = 768;
-            height = 768;
-          }
+    if (isLowMemory) {
+      width  = 768;
+      height = 768;
+    }
 
-          return glideRequests.asBitmap()
-                              .load(new DecryptableUri(imageUri))
-                              .diskCacheStrategy(DiskCacheStrategy.NONE)
-                              .skipMemoryCache(true)
-                              .into(width, height)
-                              .get();
-        } catch (InterruptedException | ExecutionException e) {
-          Log.w(TAG, e);
-          return null;
-        }
-      }
+    glideRequests.asBitmap()
+                 .load(new DecryptableUri(imageUri))
+                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                 .skipMemoryCache(true)
+                 .override(width, height)
+                 .into(new SimpleTarget<Bitmap>() {
+                   @Override
+                   public void onResourceReady(@NonNull Bitmap bitmap, @Nullable Transition<? super Bitmap> transition) {
+                     Canvas canvas = new Canvas(bitmap);
+                     motionView.render(canvas);
+                     canvasView.render(canvas);
+                     future.set(bitmap);
+                   }
 
-      @Override
-      protected void onPostExecute(@Nullable Bitmap bitmap) {
-        if (bitmap == null) {
-          future.set(null);
-          return;
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        motionView.render(canvas);
-        canvasView.render(canvas);
-        future.set(bitmap);
-      }
-    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                   @Override
+                   public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                     future.set(null);
+                   }
+               });
 
     return future;
   }
