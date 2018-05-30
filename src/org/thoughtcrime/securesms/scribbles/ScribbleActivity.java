@@ -195,8 +195,6 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
 
   @Override
   public void onColorChange(int color) {
-    if (color == 0) color = Color.RED;
-
     scribbleView.setDrawingBrushColor(color);
     changeTextEntityColor(color);
   }

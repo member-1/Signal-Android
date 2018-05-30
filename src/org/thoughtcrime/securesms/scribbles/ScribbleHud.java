@@ -1,6 +1,7 @@
 package org.thoughtcrime.securesms.scribbles;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -25,7 +26,6 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
   private VerticalSlideColorPicker colorPicker;
 
   private EventListener eventListener;
-  private int           activeColor;
 
   public ScribbleHud(@NonNull Context context) {
     super(context);
@@ -123,6 +123,8 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     deleteButton.setVisibility(GONE);
 
     drawButton.setOnClickListener(v -> setMode(Mode.NONE));
+
+    colorPicker.setActiveColor(Color.RED);
   }
 
   private void presentModeText() {
@@ -135,6 +137,8 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     undoButton.setVisibility(GONE);
 
     textButton.setOnClickListener(v -> setMode(Mode.NONE));
+
+    colorPicker.setActiveColor(Color.WHITE);
   }
 
   private void presentModeSticker() {
@@ -151,15 +155,13 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
 
   @Override
   public void onColorChange(int selectedColor) {
-    activeColor = selectedColor;
-
     if (eventListener != null) {
       eventListener.onColorChange(selectedColor);
     }
   }
 
   public int getActiveColor() {
-    return activeColor;
+    return colorPicker.getActiveColor();
   }
 
   public void setEventListener(@Nullable EventListener eventListener) {

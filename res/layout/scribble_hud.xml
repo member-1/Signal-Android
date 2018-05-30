@@ -61,11 +61,11 @@
 
         <org.thoughtcrime.securesms.scribbles.widget.VerticalSlideColorPicker
             android:id="@+id/scribble_color_picker"
-            android:layout_width="18dp"
+            android:layout_width="26dp"
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:layout_marginTop="12dp"
-            app:pickerBorderWidth="3dp"
+            app:pickerBorderWidth="4dp"
             app:pickerBorderColor="@color/white"
             app:pickerColors="@array/scribble_colors"/>
 
