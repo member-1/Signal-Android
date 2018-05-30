@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
 
 import org.thoughtcrime.securesms.PassphraseRequiredActionBarActivity;
 import org.thoughtcrime.securesms.R;
@@ -63,14 +61,6 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
     scribbleView.setMotionViewCallback(motionViewCallback);
     scribbleView.setDrawingMode(false);
     scribbleView.setImage(glideRequests, getIntent().getData());
-
-    if (Build.VERSION.SDK_INT >= 19) {
-      getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN |
-                                                       View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    } else {
-      // TODO: Test this
-      getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
   }
 
   private void addSticker(final Bitmap pica) {
@@ -129,7 +119,7 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
     TextLayer textLayer = new TextLayer();
     Font font = new Font();
 
-    font.setColor(TextLayer.Limits.INITIAL_FONT_COLOR);
+    font.setColor(scribbleHud.getActiveColor());
     font.setSize(TextLayer.Limits.INITIAL_FONT_SIZE);
 
     textLayer.setFont(font);
@@ -245,7 +235,10 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
       if (entity == null) {
         scribbleHud.enterMode(ScribbleHud.Mode.NONE);
       } else if (entity instanceof TextEntity) {
+        int textColor = ((TextEntity) entity).getLayer().getFont().getColor();
+
         scribbleHud.enterMode(ScribbleHud.Mode.TEXT);
+        scribbleHud.setActiveColor(textColor);
       } else {
         scribbleHud.enterMode(ScribbleHud.Mode.STICKER);
       }

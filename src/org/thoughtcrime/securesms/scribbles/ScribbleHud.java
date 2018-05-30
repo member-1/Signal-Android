@@ -164,6 +164,11 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     return colorPicker.getActiveColor();
   }
 
+  public void setActiveColor(int color) {
+    colorPicker.setActiveColor(color);
+    onColorChange(color);
+  }
+
   public void setEventListener(@Nullable EventListener eventListener) {
     this.eventListener = eventListener;
   }

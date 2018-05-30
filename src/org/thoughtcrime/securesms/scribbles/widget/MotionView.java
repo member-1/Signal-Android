@@ -36,6 +36,7 @@ import android.support.v4.view.ViewCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Selection;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -274,14 +275,17 @@ public class MotionView  extends FrameLayout implements TextWatcher {
   }
 
   private void selectEntity(@Nullable MotionEntity entity, boolean updateCallback) {
-    if (selectedEntity != null) {
+    if (selectedEntity != null && entity != selectedEntity) {
       selectedEntity.setIsSelected(false);
 
       if (selectedEntity instanceof TextEntity) {
-        editText.clearComposingText();
-        editText.clearFocus();
-
-        InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (TextUtils.isEmpty(((TextEntity) selectedEntity).getLayer().getText())) {
+          deletedSelectedEntity();
+        } else {
+          editText.clearComposingText();
+          editText.clearFocus();
+        }
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
       }
 
@@ -412,6 +416,12 @@ public class MotionView  extends FrameLayout implements TextWatcher {
     public boolean onSingleTapUp(MotionEvent e) {
       updateSelectionOnTap(e);
       return true;
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+      updateSelectionOnTap(e);
+      return false;
     }
   }
 
