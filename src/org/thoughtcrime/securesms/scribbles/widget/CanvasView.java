@@ -143,7 +143,7 @@ public class CanvasView extends View {
     paint.setStyle(this.paintStyle);
     paint.setStrokeWidth(this.paintStrokeWidth);
     paint.setStrokeCap(this.lineCap);
-    paint.setStrokeJoin(Paint.Join.MITER);  // fixed
+    paint.setStrokeJoin(Paint.Join.ROUND);  // fixed
 
     if (this.mode == Mode.ERASER) {
       // Eraser
@@ -275,7 +275,9 @@ public class CanvasView extends View {
 
           switch (this.drawer) {
             case PEN :
-              path.lineTo(x, y);
+              for (int i = 0; i < event.getHistorySize(); i++) {
+                path.lineTo(event.getHistoricalX(i), event.getHistoricalY(i));
+              }
               break;
             case LINE :
               path.reset();
