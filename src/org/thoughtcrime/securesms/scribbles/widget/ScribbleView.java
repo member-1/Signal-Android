@@ -16,19 +16,17 @@
  */
 package org.thoughtcrime.securesms.scribbles.widget;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -46,11 +44,11 @@ import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
 
-import java.util.concurrent.ExecutionException;
-
 public class ScribbleView extends FrameLayout {
 
   private static final String TAG = ScribbleView.class.getSimpleName();
+
+  public static final int DEFAULT_BRUSH_WIDTH = CanvasView.DEFAULT_STROKE_WIDTH;
 
   private ImageView imageView;
   private MotionView motionView;
@@ -149,6 +147,11 @@ public class ScribbleView extends FrameLayout {
   public void setDrawingBrushColor(int color) {
     this.canvasView.setPaintFillColor(color);
     this.canvasView.setPaintStrokeColor(color);
+    this.canvasView.setOpacity(Color.alpha(color));
+  }
+
+  public void setDrawingBrushWidth(int width) {
+    this.canvasView.setPaintStrokeWidth(width);
   }
 
   public void addEntityAndPosition(MotionEntity entity) {

@@ -15,9 +15,10 @@ import org.thoughtcrime.securesms.scribbles.widget.VerticalSlideColorPicker;
  * The HUD (heads-up display) that contains all of the tools for interacting with
  * {@link org.thoughtcrime.securesms.scribbles.widget.ScribbleView}
  */
-public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker.OnColorChangeListener {
+public class ScribbleHud extends FrameLayout {
 
   private View                     drawButton;
+  private View                     highlightButton;
   private View                     textButton;
   private View                     stickerButton;
   private View                     undoButton;
@@ -45,15 +46,14 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
   private void initialize() {
     inflate(getContext(), R.layout.scribble_hud, this);
 
-    drawButton    = findViewById(R.id.scribble_draw_button);
-    textButton    = findViewById(R.id.scribble_text_button);
-    stickerButton = findViewById(R.id.scribble_sticker_button);
-    undoButton    = findViewById(R.id.scribble_undo_button);
-    deleteButton  = findViewById(R.id.scribble_delete_button);
-    saveButton    = findViewById(R.id.scribble_save_button);
-    colorPicker   = findViewById(R.id.scribble_color_picker);
-
-    colorPicker.setOnColorChangeListener(this);
+    drawButton      = findViewById(R.id.scribble_draw_button);
+    highlightButton = findViewById(R.id.scribble_highlight_button);
+    textButton      = findViewById(R.id.scribble_text_button);
+    stickerButton   = findViewById(R.id.scribble_sticker_button);
+    undoButton      = findViewById(R.id.scribble_undo_button);
+    deleteButton    = findViewById(R.id.scribble_delete_button);
+    saveButton      = findViewById(R.id.scribble_save_button);
+    colorPicker     = findViewById(R.id.scribble_color_picker);
 
     undoButton.setOnClickListener(v -> {
       if (eventListener != null) {
@@ -88,10 +88,11 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
 
   private void setMode(@NonNull Mode mode, boolean notify) {
     switch (mode) {
-      case NONE:    presentModeNone(); break;
-      case DRAW:    presentModeDraw(); break;
-      case TEXT:    presentModeText(); break;
-      case STICKER: presentModeSticker(); break;
+      case NONE:      presentModeNone();      break;
+      case DRAW:      presentModeDraw();      break;
+      case HIGHLIGHT: presentModeHighlight(); break;
+      case TEXT:      presentModeText();      break;
+      case STICKER:   presentModeSticker();   break;
     }
 
     if (notify && eventListener != null) {
@@ -101,6 +102,7 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
 
   private void presentModeNone() {
     drawButton.setVisibility(VISIBLE);
+    highlightButton.setVisibility(VISIBLE);
     textButton.setVisibility(VISIBLE);
     stickerButton.setVisibility(VISIBLE);
 
@@ -109,6 +111,7 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     colorPicker.setVisibility(GONE);
 
     drawButton.setOnClickListener(v -> setMode(Mode.DRAW));
+    highlightButton.setOnClickListener(v -> setMode(Mode.HIGHLIGHT));
     textButton.setOnClickListener(v -> setMode(Mode.TEXT));
     stickerButton.setOnClickListener(v -> setMode(Mode.STICKER));
   }
@@ -118,13 +121,31 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     undoButton.setVisibility(VISIBLE);
     colorPicker.setVisibility(VISIBLE);
 
+    highlightButton.setVisibility(GONE);
     textButton.setVisibility(GONE);
     stickerButton.setVisibility(GONE);
     deleteButton.setVisibility(GONE);
 
     drawButton.setOnClickListener(v -> setMode(Mode.NONE));
 
+    colorPicker.setOnColorChangeListener(standardOnColorChangeListener);
     colorPicker.setActiveColor(Color.RED);
+  }
+
+  private void presentModeHighlight() {
+    highlightButton.setVisibility(VISIBLE);
+    undoButton.setVisibility(VISIBLE);
+    colorPicker.setVisibility(VISIBLE);
+
+    drawButton.setVisibility(GONE);
+    textButton.setVisibility(GONE);
+    stickerButton.setVisibility(GONE);
+    deleteButton.setVisibility(GONE);
+
+    highlightButton.setOnClickListener(v -> setMode(Mode.NONE));
+
+    colorPicker.setOnColorChangeListener(highlightOnColorChangeListener);
+    colorPicker.setActiveColor(Color.YELLOW);
   }
 
   private void presentModeText() {
@@ -133,11 +154,13 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     colorPicker.setVisibility(VISIBLE);
 
     drawButton.setVisibility(GONE);
+    highlightButton.setVisibility(GONE);
     stickerButton.setVisibility(GONE);
     undoButton.setVisibility(GONE);
 
     textButton.setOnClickListener(v -> setMode(Mode.NONE));
 
+    colorPicker.setOnColorChangeListener(standardOnColorChangeListener);
     colorPicker.setActiveColor(Color.WHITE);
   }
 
@@ -146,18 +169,12 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
     deleteButton.setVisibility(VISIBLE);
 
     drawButton.setVisibility(GONE);
+    highlightButton.setVisibility(GONE);
     textButton.setVisibility(GONE);
     undoButton.setVisibility(GONE);
     colorPicker.setVisibility(GONE);
 
     stickerButton.setOnClickListener(v -> setMode(Mode.NONE));
-  }
-
-  @Override
-  public void onColorChange(int selectedColor) {
-    if (eventListener != null) {
-      eventListener.onColorChange(selectedColor);
-    }
   }
 
   public int getActiveColor() {
@@ -166,15 +183,37 @@ public class ScribbleHud extends FrameLayout implements VerticalSlideColorPicker
 
   public void setActiveColor(int color) {
     colorPicker.setActiveColor(color);
-    onColorChange(color);
   }
 
   public void setEventListener(@Nullable EventListener eventListener) {
     this.eventListener = eventListener;
   }
 
+  private final VerticalSlideColorPicker.OnColorChangeListener standardOnColorChangeListener = new VerticalSlideColorPicker.OnColorChangeListener() {
+    @Override
+    public void onColorChange(int selectedColor) {
+      if (eventListener != null) {
+        eventListener.onColorChange(selectedColor);
+      }
+    }
+  };
+
+  private final VerticalSlideColorPicker.OnColorChangeListener highlightOnColorChangeListener = new VerticalSlideColorPicker.OnColorChangeListener() {
+    @Override
+    public void onColorChange(int selectedColor) {
+      if (eventListener != null) {
+        int r = Color.red(selectedColor);
+        int g = Color.green(selectedColor);
+        int b = Color.blue(selectedColor);
+        int a = 128;
+
+        eventListener.onColorChange(Color.argb(a, r, g, b));
+      }
+    }
+  };
+
   public enum Mode {
-    NONE, DRAW, TEXT, STICKER
+    NONE, DRAW, HIGHLIGHT, TEXT, STICKER
   }
 
   public interface EventListener {

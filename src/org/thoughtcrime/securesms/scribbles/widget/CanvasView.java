@@ -37,6 +37,8 @@ public class CanvasView extends View {
 
   private static final String TAG = CanvasView.class.getSimpleName();
 
+  public static final int DEFAULT_STROKE_WIDTH = 15;
+
   // Enumeration for Mode
   public enum Mode {
     DRAW,
@@ -78,7 +80,7 @@ public class CanvasView extends View {
   private Paint.Style paintStyle = Paint.Style.STROKE;
   private int paintStrokeColor   = Color.BLACK;
   private int paintFillColor     = Color.BLACK;
-  private float paintStrokeWidth = 15F;
+  private float paintStrokeWidth = DEFAULT_STROKE_WIDTH;
   private int opacity            = 255;
   private float blur             = 0F;
   private Paint.Cap lineCap      = Paint.Cap.ROUND;

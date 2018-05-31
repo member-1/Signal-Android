@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -163,6 +164,12 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
     switch (mode) {
       case DRAW:
         scribbleView.setDrawingMode(true);
+        scribbleView.setDrawingBrushWidth(ScribbleView.DEFAULT_BRUSH_WIDTH);
+        break;
+
+      case HIGHLIGHT:
+        scribbleView.setDrawingMode(true);
+        scribbleView.setDrawingBrushWidth(ScribbleView.DEFAULT_BRUSH_WIDTH * 3);
         break;
 
       case TEXT:
