@@ -16,6 +16,7 @@
  */
 package org.thoughtcrime.securesms.scribbles.widget;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,6 +28,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -43,6 +46,9 @@ import org.thoughtcrime.securesms.scribbles.widget.entity.TextEntity;
 import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class ScribbleView extends FrameLayout {
 
@@ -139,6 +145,18 @@ public class ScribbleView extends FrameLayout {
     this.motionView.setMotionViewCallback(callback);
   }
 
+  @SuppressLint("ClickableViewAccessibility")
+  public void setDrawingChangedListener(@Nullable DrawingChangedListener listener) {
+    this.canvasView.setOnTouchListener((v, event) -> {
+      if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+        if (listener != null) {
+          listener.onDrawingChanged();
+        }
+      }
+      return false;
+    });
+  }
+
   public void setDrawingMode(boolean enabled) {
     this.canvasView.setActive(enabled);
     if (enabled) this.motionView.unselectEntity();
@@ -178,6 +196,15 @@ public class ScribbleView extends FrameLayout {
     this.motionView.startEditing(entity);
   }
 
+  public @NonNull Set<Integer> getUniqueColors() {
+    Set<Integer> colors = new LinkedHashSet<>();
+
+    colors.addAll(motionView.getUniqueColors());
+    colors.addAll(canvasView.getUniqueColors());
+
+    return colors;
+  }
+
   @Override
   public void onMeasure(int width, int height) {
     super.onMeasure(width, height);
@@ -191,4 +218,7 @@ public class ScribbleView extends FrameLayout {
                        MeasureSpec.makeMeasureSpec(imageView.getMeasuredHeight(), MeasureSpec.EXACTLY));
   }
 
+  public interface DrawingChangedListener {
+    void onDrawingChanged();
+  }
 }

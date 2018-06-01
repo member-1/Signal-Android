@@ -4,12 +4,18 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.thoughtcrime.securesms.R;
+import org.thoughtcrime.securesms.scribbles.widget.ColorPaletteAdapter;
 import org.thoughtcrime.securesms.scribbles.widget.VerticalSlideColorPicker;
+
+import java.util.Set;
 
 /**
  * The HUD (heads-up display) that contains all of the tools for interacting with
@@ -25,8 +31,10 @@ public class ScribbleHud extends FrameLayout {
   private View                     deleteButton;
   private View                     saveButton;
   private VerticalSlideColorPicker colorPicker;
+  private RecyclerView             colorPalette;
 
-  private EventListener eventListener;
+  private EventListener       eventListener;
+  private ColorPaletteAdapter colorPaletteAdapter;
 
   public ScribbleHud(@NonNull Context context) {
     super(context);
@@ -54,6 +62,7 @@ public class ScribbleHud extends FrameLayout {
     deleteButton    = findViewById(R.id.scribble_delete_button);
     saveButton      = findViewById(R.id.scribble_save_button);
     colorPicker     = findViewById(R.id.scribble_color_picker);
+    colorPalette    = findViewById(R.id.scribble_color_palette);
 
     undoButton.setOnClickListener(v -> {
       if (eventListener != null) {
@@ -75,7 +84,17 @@ public class ScribbleHud extends FrameLayout {
       setMode(Mode.NONE);
     });
 
+    colorPaletteAdapter = new ColorPaletteAdapter();
+    colorPaletteAdapter.setEventListener(colorPicker::setActiveColor);
+
+    colorPalette.setLayoutManager(new LinearLayoutManager(getContext()));
+    colorPalette.setAdapter(colorPaletteAdapter);
+
     setMode(Mode.NONE);
+  }
+
+  public void setColorPalette(@NonNull Set<Integer> colors) {
+    colorPaletteAdapter.setColors(colors);
   }
 
   public void enterMode(@NonNull Mode mode) {
@@ -109,6 +128,7 @@ public class ScribbleHud extends FrameLayout {
     undoButton.setVisibility(GONE);
     deleteButton.setVisibility(GONE);
     colorPicker.setVisibility(GONE);
+    colorPalette.setVisibility(GONE);
 
     drawButton.setOnClickListener(v -> setMode(Mode.DRAW));
     highlightButton.setOnClickListener(v -> setMode(Mode.HIGHLIGHT));
@@ -120,6 +140,7 @@ public class ScribbleHud extends FrameLayout {
     drawButton.setVisibility(VISIBLE);
     undoButton.setVisibility(VISIBLE);
     colorPicker.setVisibility(VISIBLE);
+    colorPalette.setVisibility(VISIBLE);
 
     highlightButton.setVisibility(GONE);
     textButton.setVisibility(GONE);
@@ -136,6 +157,7 @@ public class ScribbleHud extends FrameLayout {
     highlightButton.setVisibility(VISIBLE);
     undoButton.setVisibility(VISIBLE);
     colorPicker.setVisibility(VISIBLE);
+    colorPalette.setVisibility(VISIBLE);
 
     drawButton.setVisibility(GONE);
     textButton.setVisibility(GONE);
@@ -152,6 +174,7 @@ public class ScribbleHud extends FrameLayout {
     textButton.setVisibility(VISIBLE);
     deleteButton.setVisibility(VISIBLE);
     colorPicker.setVisibility(VISIBLE);
+    colorPalette.setVisibility(VISIBLE);
 
     drawButton.setVisibility(GONE);
     highlightButton.setVisibility(GONE);
@@ -173,6 +196,7 @@ public class ScribbleHud extends FrameLayout {
     textButton.setVisibility(GONE);
     undoButton.setVisibility(GONE);
     colorPicker.setVisibility(GONE);
+    colorPalette.setVisibility(GONE);
 
     stickerButton.setOnClickListener(v -> setMode(Mode.NONE));
   }

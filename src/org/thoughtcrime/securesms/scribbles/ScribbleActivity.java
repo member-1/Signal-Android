@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 
 import org.thoughtcrime.securesms.PassphraseRequiredActionBarActivity;
 import org.thoughtcrime.securesms.R;
@@ -60,8 +60,15 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
     scribbleHud.setEventListener(this);
 
     scribbleView.setMotionViewCallback(motionViewCallback);
+    scribbleView.setDrawingChangedListener(() -> scribbleHud.setColorPalette(scribbleView.getUniqueColors()));
     scribbleView.setDrawingMode(false);
     scribbleView.setImage(glideRequests, getIntent().getData());
+
+    if (Build.VERSION.SDK_INT >= 19) {
+      getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN       |
+                                                       View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                                                       View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+    }
   }
 
   private void addSticker(final Bitmap pica) {
@@ -83,6 +90,7 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
     textEntity.getLayer().getFont().setColor(selectedColor);
     textEntity.updateEntity();
     scribbleView.invalidate();
+    scribbleHud.setColorPalette(scribbleView.getUniqueColors());
   }
 
   private void startTextEntityEditing() {
@@ -199,11 +207,13 @@ public class ScribbleActivity extends PassphraseRequiredActionBarActivity implem
   @Override
   public void onUndo() {
     scribbleView.undoDrawing();
+    scribbleHud.setColorPalette(scribbleView.getUniqueColors());
   }
 
   @Override
   public void onDelete() {
     scribbleView.deleteSelected();
+    scribbleHud.setColorPalette(scribbleView.getUniqueColors());
   }
 
   @Override

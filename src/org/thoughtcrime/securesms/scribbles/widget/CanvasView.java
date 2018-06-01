@@ -20,15 +20,16 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class defines fields and methods for drawing.
@@ -774,4 +775,14 @@ public class CanvasView extends View {
     return this.getBitmapAsByteArray(CompressFormat.PNG, 100);
   }
 
+  public @NonNull Set<Integer> getUniqueColors() {
+    Set<Integer> colors = new LinkedHashSet<>();
+
+    for (int i = 1; i < paintLists.size() && i < historyPointer; i++) {
+      int color = paintLists.get(i).getColor();
+      colors.add(Color.rgb(Color.red(color), Color.green(color), Color.blue(color)));
+    }
+
+    return colors;
+  }
 }

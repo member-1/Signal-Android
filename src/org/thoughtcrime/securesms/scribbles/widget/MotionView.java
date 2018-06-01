@@ -57,7 +57,9 @@ import org.thoughtcrime.securesms.scribbles.widget.entity.MotionEntity;
 import org.thoughtcrime.securesms.scribbles.widget.entity.TextEntity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MotionView  extends FrameLayout implements TextWatcher {
 
@@ -181,6 +183,18 @@ public class MotionView  extends FrameLayout implements TextWatcher {
       entities.add(entity);
       selectEntity(entity, true);
     }
+  }
+
+  public @NonNull Set<Integer> getUniqueColors() {
+    Set<Integer> colors = new LinkedHashSet<>();
+
+    for (MotionEntity entity : entities) {
+      if (entity instanceof TextEntity) {
+        colors.add(((TextEntity) entity).getLayer().getFont().getColor());
+      }
+    }
+
+    return colors;
   }
 
   private void initEntityBorder(@NonNull MotionEntity entity ) {
