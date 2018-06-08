@@ -17,11 +17,17 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.emoji.EmojiTextView;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.util.ResUtil;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.thoughtcrime.securesms.util.Util;
 import org.thoughtcrime.securesms.util.spans.CenterAlignedRelativeSizeSpan;
 
 public class FromTextView extends EmojiTextView {
 
   private static final String TAG = FromTextView.class.getSimpleName();
+
+  private CharSequence previousString;
+  private boolean      useSystemEmoji;
+  private boolean      readStatus;
 
   public FromTextView(Context context) {
     super(context);
@@ -37,6 +43,14 @@ public class FromTextView extends EmojiTextView {
 
   public void setText(Recipient recipient, boolean read) {
     String fromString = recipient.toShortString();
+
+    if (unchanged(fromString, read)) {
+      return;
+    }
+
+    previousString = fromString;
+    useSystemEmoji = useSystemEmoji();
+    readStatus     = read;
 
     int typeface;
 
@@ -76,5 +90,13 @@ public class FromTextView extends EmojiTextView {
     else                            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
   }
 
+  private boolean unchanged(CharSequence text, boolean read) {
+    return Util.equals(previousString, text)  &&
+           useSystemEmoji == useSystemEmoji() &&
+           readStatus == read;
+  }
 
+  private boolean useSystemEmoji() {
+    return TextSecurePreferences.isSystemEmojiPreferred(getContext());
+  }
 }
