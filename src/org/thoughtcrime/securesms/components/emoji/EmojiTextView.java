@@ -27,6 +27,8 @@ public class EmojiTextView extends AppCompatTextView {
   private CharSequence  previousText;
   private BufferType    previousBufferType;
   private float         originalFontSize;
+  private long          emojiUpdateTime;
+  private int           emojiStyle;
   private boolean       useSystemEmoji;
   private boolean       sizeChangeInProgress;
 
@@ -84,6 +86,8 @@ public class EmojiTextView extends AppCompatTextView {
 
     previousText       = text;
     previousBufferType = type;
+    emojiUpdateTime    = getEmojiUpdateTime();
+    emojiStyle         = getEmojiStyle();
     useSystemEmoji     = useSystemEmoji();
 
     if (useSystemEmoji) {
@@ -150,6 +154,8 @@ public class EmojiTextView extends AppCompatTextView {
   private boolean unchanged(CharSequence text, BufferType bufferType) {
     return Util.equals(previousText, text)             &&
            Util.equals(previousBufferType, bufferType) &&
+           emojiUpdateTime == getEmojiUpdateTime()     &&
+           emojiStyle == getEmojiStyle()               &&
            useSystemEmoji == useSystemEmoji()          &&
            !sizeChangeInProgress;
   }
@@ -160,6 +166,14 @@ public class EmojiTextView extends AppCompatTextView {
 
   private boolean useSystemEmoji() {
     return TextSecurePreferences.isSystemEmojiPreferred(getContext());
+  }
+
+  private int getEmojiStyle() {
+    return TextSecurePreferences.getEmojiStyle(getContext());
+  }
+
+  private long getEmojiUpdateTime() {
+    return TextSecurePreferences.getEmojiLastUpdateTime(getContext());
   }
 
   @Override

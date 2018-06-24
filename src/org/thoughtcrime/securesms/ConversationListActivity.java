@@ -19,8 +19,10 @@ package org.thoughtcrime.securesms;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import android.widget.Toast;
 
 import org.thoughtcrime.securesms.components.RatingManager;
 import org.thoughtcrime.securesms.components.SearchToolbar;
+import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.MessagingDatabase.MarkedMessageInfo;
 import org.thoughtcrime.securesms.lock.RegistrationLockDialog;
@@ -49,6 +52,7 @@ import org.thoughtcrime.securesms.util.DynamicNoActionBarTheme;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ConversationListActivity extends PassphraseRequiredActionBarActivity
@@ -56,6 +60,10 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 {
   @SuppressWarnings("unused")
   private static final String TAG = ConversationListActivity.class.getSimpleName();
+
+  public static final String EMOJI_ANDROID      = "org.thoughtcrime.securesms.android";
+  public static final String EMOJI_TWITTER      = "org.thoughtcrime.securesms.twitter";
+  public static final String EMOJI_EMOJIONE     = "org.thoughtcrime.securesms.emojione";
 
   private final DynamicTheme    dynamicTheme    = new DynamicNoActionBarTheme();
   private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
@@ -65,6 +73,7 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
   private SearchToolbar            searchToolbar;
   private ImageView                searchAction;
   private ViewGroup                fragmentContainer;
+  private BroadcastReceiver        emojiUpdateReceiver;
 
   @Override
   protected void onPreCreate() {
@@ -85,6 +94,7 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     conversationListFragment = initFragment(R.id.fragment_container, new ConversationListFragment(), dynamicLanguage.getCurrentLocale());
 
     initializeSearchListener();
+    initializeReceivers();
 
     RatingManager.showRatingDialogIfNecessary(this);
     RegistrationLockDialog.showReminderIfNecessary(this);
@@ -101,6 +111,7 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
   @Override
   public void onDestroy() {
+    if (emojiUpdateReceiver != null)  unregisterReceiver(emojiUpdateReceiver);
     super.onDestroy();
   }
 
@@ -115,6 +126,38 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
     super.onPrepareOptionsMenu(menu);
     return true;
+  }
+
+  private String getPackageName(Intent intent) {
+    final Uri uri = intent.getData();
+    if (uri == null) {
+      return null;
+    }
+    return uri.getSchemeSpecificPart();
+  }
+
+  private String getEmojiName(Context context) {
+    return getResources().getStringArray(R.array.pref_message_emoji_entries)[TextSecurePreferences.getEmojiStyle(context)]
+                         .toLowerCase();
+  }
+
+  private void initializeReceivers() {
+    emojiUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        String packageName = getPackageName(intent);
+        String[] addons    = {EMOJI_ANDROID, EMOJI_TWITTER, EMOJI_EMOJIONE};
+        if (packageName != null && Arrays.asList(addons).contains(packageName) && packageName.contains(getEmojiName(context))) {
+          EmojiProvider.reload(context);
+        }
+      }
+    };
+
+    IntentFilter filter = new IntentFilter();
+    filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+    filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+    filter.addDataScheme("package");
+    registerReceiver(emojiUpdateReceiver, filter);
   }
 
   private void initializeSearchListener() {

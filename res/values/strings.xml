@@ -1060,6 +1060,11 @@
     <string name="arrays__large">Large</string>
     <string name="arrays__extra_large">Extra large</string>
 
+    <string name="arrays__emoji_ios">iOS</string>
+    <string name="arrays__emoji_android">Android</string>
+    <string name="arrays__emoji_twitter">Twitter</string>
+    <string name="arrays__emoji_emojione">EmojiOne</string>
+
     <string name="arrays__default">Default</string>
     <string name="arrays__high">High</string>
     <string name="arrays__max">Max</string>
@@ -1154,6 +1159,7 @@
     <string name="preferences_chats__when_roaming">When roaming</string>
     <string name="preferences_chats__media_auto_download">Media auto-download</string>
     <string name="preferences_chats__message_trimming">Message trimming</string>
+    <string name="preferences_chats__message_emoji_style">Emoji style</string>
     <string name="preferences_advanced__use_system_emoji">Use system emoji</string>
     <string name="preferences_advanced__disable_signal_built_in_emoji_support">Disable Signal\'s built-in emoji support</string>
     <string name="preferences_advanced__relay_all_calls_through_the_signal_server_to_avoid_revealing_your_ip_address">Relay all calls through the Signal server to avoid revealing your IP address to your contact. Enabling will reduce call quality.</string>

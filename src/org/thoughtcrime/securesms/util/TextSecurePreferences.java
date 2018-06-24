@@ -52,6 +52,7 @@ public class TextSecurePreferences {
 
   private static final String LAST_VERSION_CODE_PREF           = "last_version_code";
   private static final String LAST_EXPERIENCE_VERSION_PREF     = "last_experience_version_code";
+  private static final String LAST_EMOJI_UPDATE_PREF           = "last_emoji_update_time";
   private static final String EXPERIENCE_DISMISSED_PREF        = "experience_dismissed";
   public  static final String RINGTONE_PREF                    = "pref_key_ringtone";
   public  static final String VIBRATE_PREF                     = "pref_key_vibrate";
@@ -111,6 +112,7 @@ public class TextSecurePreferences {
   public  static final String MEDIA_DOWNLOAD_WIFI_PREF         = "pref_media_download_wifi";
   public  static final String MEDIA_DOWNLOAD_ROAMING_PREF      = "pref_media_download_roaming";
 
+  public  static final String EMOJI_STYLE_PREF                 = "pref_message_emoji_style";
   public  static final String SYSTEM_EMOJI_PREF                = "pref_system_emoji";
   private static final String MULTI_DEVICE_PROVISIONED_PREF    = "pref_multi_device";
   public  static final String DIRECT_CAPTURE_CAMERA_ID         = "pref_direct_capture_camera_id";
@@ -357,6 +359,18 @@ public class TextSecurePreferences {
 
   public static int getMessageBodyTextSize(Context context) {
     return Integer.valueOf(getStringPreference(context, MESSAGE_BODY_TEXT_SIZE_PREF, "16"));
+  }
+
+  public static int getEmojiStyle(Context context) {
+    return Integer.valueOf(getStringPreference(context, EMOJI_STYLE_PREF, "0"));
+  }
+
+  public static long getEmojiLastUpdateTime(Context context) {
+    return getLongPreference(context, LAST_EMOJI_UPDATE_PREF, 0);
+  }
+
+  public static void setEmojiLastUpdateTime(Context context, long value) {
+    setLongPreference(context, LAST_EMOJI_UPDATE_PREF, value);
   }
 
   public static boolean isTurnOnly(Context context) {

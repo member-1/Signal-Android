@@ -22,6 +22,7 @@ import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.backup.BackupDialog;
 import org.thoughtcrime.securesms.backup.FullBackupBase.BackupEvent;
 import org.thoughtcrime.securesms.components.SwitchPreferenceCompat;
+import org.thoughtcrime.securesms.components.emoji.EmojiProvider;
 import org.thoughtcrime.securesms.jobs.LocalBackupJob;
 import org.thoughtcrime.securesms.logging.Log;
 import org.thoughtcrime.securesms.permissions.Permissions;
@@ -31,6 +32,7 @@ import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.thoughtcrime.securesms.util.Trimmer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -50,6 +52,8 @@ public class ChatsPreferenceFragment extends ListSummaryPreferenceFragment {
         .setOnPreferenceChangeListener(new MediaDownloadChangeListener());
     findPreference(TextSecurePreferences.MESSAGE_BODY_TEXT_SIZE_PREF)
         .setOnPreferenceChangeListener(new ListSummaryListener());
+    findPreference(TextSecurePreferences.EMOJI_STYLE_PREF)
+        .setOnPreferenceChangeListener(new EmojiListListener());
 
     findPreference(TextSecurePreferences.THREAD_TRIM_NOW)
         .setOnPreferenceClickListener(new TrimNowClickListener());
@@ -62,6 +66,7 @@ public class ChatsPreferenceFragment extends ListSummaryPreferenceFragment {
         .setOnPreferenceClickListener(new BackupCreateListener());
 
     initializeListSummary((ListPreference) findPreference(TextSecurePreferences.MESSAGE_BODY_TEXT_SIZE_PREF));
+    initializeListSummary((ListPreference) findPreference(TextSecurePreferences.EMOJI_STYLE_PREF));
 
     EventBus.getDefault().register(this);
   }
@@ -168,6 +173,21 @@ public class ChatsPreferenceFragment extends ListSummaryPreferenceFragment {
                  .withPermanentDenialDialog(getString(R.string.ChatsPreferenceFragment_signal_requires_external_storage_permission_in_order_to_create_backups))
                  .execute();
 
+      return true;
+    }
+  }
+
+  protected class EmojiListListener implements Preference.OnPreferenceChangeListener {
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object value) {
+      ListPreference listPref   = (ListPreference) preference;
+      int            entryIndex = Arrays.asList(listPref.getEntryValues()).indexOf(value);
+
+      listPref.setSummary(entryIndex >= 0 && entryIndex < listPref.getEntries().length
+              ? listPref.getEntries()[entryIndex]
+              : getString(R.string.preferences__led_color_unknown));
+      EmojiProvider.getInstance(getContext())
+                   .changePref(getContext());
       return true;
     }
   }

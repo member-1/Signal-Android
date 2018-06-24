@@ -26,6 +26,8 @@ public class FromTextView extends EmojiTextView {
   private static final String TAG = FromTextView.class.getSimpleName();
 
   private CharSequence previousString;
+  private long         emojiUpdateTime;
+  private int          emojiStyle;
   private boolean      useSystemEmoji;
   private boolean      readStatus;
 
@@ -48,9 +50,11 @@ public class FromTextView extends EmojiTextView {
       return;
     }
 
-    previousString = fromString;
-    useSystemEmoji = useSystemEmoji();
-    readStatus     = read;
+    previousString  = fromString;
+    emojiUpdateTime = getEmojiUpdateTime();
+    emojiStyle      = getEmojiStyle();
+    useSystemEmoji  = useSystemEmoji();
+    readStatus      = read;
 
     int typeface;
 
@@ -91,12 +95,22 @@ public class FromTextView extends EmojiTextView {
   }
 
   private boolean unchanged(CharSequence text, boolean read) {
-    return Util.equals(previousString, text)  &&
-           useSystemEmoji == useSystemEmoji() &&
+    return Util.equals(previousString, text)       &&
+           emojiUpdateTime == getEmojiUpdateTime() &&
+           emojiStyle == getEmojiStyle()           &&
+           useSystemEmoji == useSystemEmoji()      &&
            readStatus == read;
   }
 
   private boolean useSystemEmoji() {
     return TextSecurePreferences.isSystemEmojiPreferred(getContext());
+  }
+
+  private int getEmojiStyle() {
+    return TextSecurePreferences.getEmojiStyle(getContext());
+  }
+
+  private long getEmojiUpdateTime() {
+    return TextSecurePreferences.getEmojiLastUpdateTime(getContext());
   }
 }

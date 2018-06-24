@@ -45,6 +45,14 @@
                 android:title="@string/preferences_chats__show_invitation_prompts"
                 android:summary="@string/preferences_chats__display_invitation_prompts_for_contacts_without_signal" />
 
+        <org.thoughtcrime.securesms.preferences.widgets.SignalListPreference
+                android:key="pref_message_emoji_style"
+                android:title="@string/preferences_chats__message_emoji_style"
+                android:entries="@array/pref_message_emoji_entries"
+                android:entryValues="@array/pref_message_emoji_values"
+                android:defaultValue="0">
+        </org.thoughtcrime.securesms.preferences.widgets.SignalListPreference>
+
         <org.thoughtcrime.securesms.components.SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_system_emoji"

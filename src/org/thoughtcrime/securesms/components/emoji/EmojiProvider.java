@@ -29,7 +29,7 @@ import org.whispersystems.libsignal.util.Pair;
 
 import java.util.concurrent.ExecutionException;
 
-class EmojiProvider {
+public class EmojiProvider {
 
   private static final    String        TAG      = EmojiProvider.class.getSimpleName();
   private static volatile EmojiProvider instance = null;
@@ -73,6 +73,14 @@ class EmojiProvider {
     for (Pair<String,String> obsolete : EmojiPages.OBSOLETE) {
       emojiTree.add(obsolete.first(), emojiTree.getEmoji(obsolete.second(), 0, obsolete.second().length()));
     }
+  }
+
+  public void changePref(Context context) {
+    instance = new EmojiProvider(context);
+  }
+
+  public static void reload(Context context) {
+    instance = new EmojiProvider(context);
   }
 
   @Nullable EmojiParser.CandidateList getCandidates(@Nullable CharSequence text) {
